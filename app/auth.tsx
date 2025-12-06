@@ -1,48 +1,89 @@
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { KeyboardAvoidingView, Platform, View } from "react-native";
-import { Button, Text, TextInput } from "react-native-paper";
-import tw from "twrnc";
+import { Alert, StyleSheet, View } from "react-native";
+import { Button, TextInput } from "react-native-paper";
+import { supabase } from "../lib/supabase";
 
-const Auth = () => {
-  const [isSignup, setIsSignup] = useState<boolean>(false);
-  const handleSwitchMode = () => {
-    setIsSignup((prev) => !prev);
-  };
+export default function Auth() {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  async function signInWithEmail() {
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+
+    if (error) Alert.alert(error.message);
+    router.replace("/");
+    setLoading(false);
+  }
+
+  async function signUpWithEmail() {
+    setLoading(true);
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+    });
+
+    if (error) Alert.alert(error.message);
+    if (!session)
+      Alert.alert("Please check your inbox for email verification!");
+    setLoading(false);
+  }
+
   return (
-    <KeyboardAvoidingView
-      style={tw`flex-1 bg-gray-100 `}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <View style={tw`px-[16px] justify-center  flex-1  `}>
-        <Text variant="headlineMedium" style={tw`text-center  mb-5`}>
-          {isSignup ? "Create account" : " Welcome Back"}{" "}
-        </Text>
+    <View style={styles.container}>
+      <View style={[styles.verticallySpaced, styles.mt20]}>
         <TextInput
-          style={tw`mb-4 `}
-          autoCapitalize="none"
           label="Email"
-          keyboardType="email-address"
-          placeholder="example@gmail.com"
-          mode="outlined"
+          onChangeText={(text) => setEmail(text)}
+          value={email}
+          placeholder="email@address.com"
+          autoCapitalize={"none"}
         />
+      </View>
+      <View style={styles.verticallySpaced}>
         <TextInput
-          autoCapitalize="none"
-          style={tw`mb-4 `}
           label="Password"
-          keyboardType="visible-password"
-          mode="outlined"
+          onChangeText={(text) => setPassword(text)}
+          value={password}
+          secureTextEntry={true}
+          placeholder="Password"
+          autoCapitalize={"none"}
         />
-        <Button style={tw`mt-2`} mode="contained">
-          {isSignup ? "Sign Up" : "Sign In"}
-        </Button>
-        <Button style={tw`mt-4`} mode="text" onPress={handleSwitchMode}>
-          {isSignup
-            ? "Already have an account? Sign In"
-            : "Don't have an account? Sign Up"}
+      </View>
+      <View style={[styles.verticallySpaced, styles.mt20]}>
+        <Button disabled={loading} onPress={() => signInWithEmail()}>
+          Sign in
         </Button>
       </View>
-    </KeyboardAvoidingView>
+      <View style={styles.verticallySpaced}>
+        <Button disabled={loading} onPress={() => signUpWithEmail()}>
+          Sign up
+        </Button>
+      </View>
+    </View>
   );
-};
+}
 
-export default Auth;
+const styles = StyleSheet.create({
+  container: {
+    marginTop: 40,
+    padding: 12,
+  },
+  verticallySpaced: {
+    paddingTop: 4,
+    paddingBottom: 4,
+    alignSelf: "stretch",
+  },
+  mt20: {
+    marginTop: 20,
+  },
+});
