@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button, SegmentedButtons, TextInput } from "react-native-paper";
@@ -13,6 +14,8 @@ const AddHabbit = () => {
   const [description, setDescription] = useState("");
   const [frequency, setFrequency] = useState("daily");
   const [user, setUser] = useState<User | null>(null);
+
+  const router = useRouter();
 
   useEffect(() => {
     const getUser = async () => {
@@ -30,23 +33,22 @@ const AddHabbit = () => {
       title: title,
       description: description,
       frequency: frequency,
-      streak_count: 400,
-      last_completed: "4 days ago",
     });
 
     if (error) {
       console.log(error.message);
       return;
+    } else {
+      router.replace("/");
+      console.log("Habit added!");
     }
-
-    console.log("Habit added!");
   };
 
   return (
     <View style={tw` px-2 py-4 bg-[#f5f5f5] justify-center flex-1  `}>
       <TextInput
         onChangeText={setTitle}
-        style={tw`mb-4 bg-white `}
+        style={tw`mb-4  bg-white `}
         label="Title"
         mode="outlined"
       />
@@ -67,7 +69,7 @@ const AddHabbit = () => {
         />
       </View>
       <Button
-        style={tw`mt-2 bg-blue-400 `}
+        style={tw`mt-2`}
         onPress={handleSubmit}
         disabled={!title || !description}
         mode="contained"
