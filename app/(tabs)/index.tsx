@@ -68,6 +68,23 @@ export default function Index() {
       console.log(error);
     }
   };
+  const handleComplete = async (id: number) => {
+    try {
+      const { error } = await supabase
+        .from("habits")
+        .update({ is_completed: true })
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error completed text:", error);
+        return { success: false, error: error.message };
+      } else {
+        await fetchHabits();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <View style={tw` px-3 flex-1 bg-[#f5f5f5]  `}>
@@ -105,12 +122,14 @@ export default function Index() {
               onSwipeableOpen={(direction) => {
                 if (direction === "right") {
                   handleDelete(habit.id);
+                } else {
+                  handleComplete(habit.id);
                 }
 
                 swipeableRefs.current[habit.id]?.close();
               }}
               ref={(ref) => {
-                swipeableRefs.current[habit.title] = ref;
+                swipeableRefs.current[habit.id] = ref;
               }}
             >
               <View

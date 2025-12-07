@@ -27,8 +27,6 @@ const AddHabbit = () => {
   }, []);
 
   const handleSubmit = async () => {
-    if (!user) return;
-
     const { error } = await supabase.from("habits").insert({
       title: title,
       description: description,
@@ -39,6 +37,8 @@ const AddHabbit = () => {
       console.log(error.message);
       return;
     } else {
+      // Wait a moment for the data to be fully persisted
+      await new Promise((resolve) => setTimeout(resolve, 500));
       router.replace("/");
       console.log("Habit added!");
     }

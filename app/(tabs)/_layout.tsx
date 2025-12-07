@@ -30,19 +30,7 @@ export default function TabsLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="streaks"
-        options={{
-          title: "Streaks",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="chart-line"
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="add-habit"
         options={{
